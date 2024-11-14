@@ -1,9 +1,9 @@
 import { makeControllerToken } from '@infra/injection/injectable'
 import * as express from 'express'
 import { Server as ServerType } from 'http'
-import { Controller } from '../interfaces/controller'
-import { HttpMessages } from '../interfaces/message'
-import { HttpStatusCode } from '../interfaces/status'
+import { Controller } from '../interfaces/controller.interface'
+import { HttpMessages } from '../interfaces/message.enum'
+import { HttpStatusCode } from '../interfaces/status.enum'
 import { resolve } from '@infra/injection/resolve'
 
 export class Server {
