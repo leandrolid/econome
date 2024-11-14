@@ -1,5 +1,8 @@
-type ColumnOptions = {
+export type ColumnOptions = {
   name?: string
+  default?: any
+  type?: 'timestamp' | 'text'
+  generated?: boolean
 }
 
 export const Column = (options: ColumnOptions = {}) => {

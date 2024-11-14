@@ -1,6 +1,7 @@
 import * as pgPromise from 'pg-promise'
 import { Model } from './model'
 import { DataClass } from 'src/domain/adapters/data-class'
+import { ColumnOptions } from './column'
 
 export class Connection {
   private database: pgPromise.IDatabase<any>
@@ -15,8 +16,9 @@ export class Connection {
 
   private constructor() {
     this.database = pgPromise({
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       query(e) {
-        console.log('QUERY:', e.query)
+        // console.log('QUERY:', e.query)
       },
     })({
       host: process.env.DB_HOST,
@@ -41,39 +43,66 @@ export class Connection {
   ): Promise<T[]> {
     const arrayValues = Array.isArray(values) ? values : [values]
     const tableName = this.getTableName(target)
-    const { columns, columnsMap } = this.getColumns(target, ['id'])
+    const { columns, columnsMap } = this.insertColumns(target)
     const serializedValues = arrayValues.map((value) => this.serialize(value, columnsMap))
+    const variables = serializedValues.map((_, rowIndex) => {
+      return `(${columns.map((_, columnIndex) => `$${rowIndex * columns.length + columnIndex + 1}`).join(', ')})`
+    })
     const results = await this.query(
-      `INSERT INTO ${tableName} (${columns.join(', ')}) VALUES $1 RETURNING id`,
-      [
-        ...serializedValues.map((value) => {
-          return `(${columns.map((column) => value[column]).join(', ')})`
-        }),
-      ],
+      `INSERT INTO
+        ${tableName} (${columns.join(', ')})
+      VALUES
+        ${variables.join(', ')}
+      RETURNING *`,
+      [...serializedValues.flatMap((value) => columns.map((column) => value[column]))],
     )
-    return results.map((result, index) => arrayValues[index].copy({ id: result.id }))
+    return results.map((result) => this.deserialize(result, columnsMap))
   }
 
   private getTableName(target: Model): string {
     return Reflect.getMetadata('tableName', target)
   }
 
-  private getColumns(target: Model, ignore?: string[]) {
-    const columns = Reflect.getMetadata('columns', target) as Record<string, any>
-    const columnNames = Object.values(columns).map((column) => column.name)
-    const filteredColumns = ignore
-      ? Object.values(columnNames).filter((key) => !ignore.includes(key))
-      : Object.values(columnNames)
+  private insertColumns(target: Model) {
+    const columns = Reflect.getMetadata('columns', target) as Record<string, ColumnOptions>
+    const filteredColumns = Object.values(columns)
+      .filter((column) => !column.generated)
+      .map((column) => column.name)
     return {
       columns: filteredColumns,
       columnsMap: columns,
     }
   }
 
-  private serialize(data: any, columnsMap: Record<string, any>): any {
-    return Object.keys(data).reduce((acc, key) => {
-      acc[columnsMap[key].name] = data[key]
+  private serialize(inputData: any, columnsMap: Record<string, ColumnOptions>): any {
+    return Object.entries(columnsMap).reduce((acc, [, column]) => {
+      acc[column.name] = this.serializeValue(column.type, inputData[column.name] ?? column.default)
       return acc
     }, {})
+  }
+
+  private serializeValue(type: ColumnOptions['type'], value: any) {
+    switch (type) {
+      case 'timestamp':
+        return value instanceof Date ? value.toISOString() : value
+      default:
+        return value
+    }
+  }
+
+  private deserialize(rowData: any, columnsMap: Record<string, ColumnOptions>): any {
+    return Object.entries(columnsMap).reduce((acc, [key, column]) => {
+      acc[key] = this.deserializeValue(column.type, rowData[column.name])
+      return acc
+    }, {})
+  }
+
+  private deserializeValue(type: ColumnOptions['type'], value: any) {
+    switch (type) {
+      case 'timestamp':
+        return value && new Date(value)
+      default:
+        return value
+    }
   }
 }
