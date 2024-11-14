@@ -1,6 +1,5 @@
 import * as pgPromise from 'pg-promise'
 import { Model } from './model'
-import { DataClass } from 'src/domain/adapters/data-class'
 import { ColumnOptions } from './column'
 
 export class Connection {
@@ -37,10 +36,7 @@ export class Connection {
     return this.database.$pool.end()
   }
 
-  async insertInto<T extends DataClass>(
-    target: Model,
-    values: Partial<T> | Partial<T>[],
-  ): Promise<T[]> {
+  async insertInto<T>(target: Model, values: Partial<T> | Partial<T>[]): Promise<T[]> {
     const arrayValues = Array.isArray(values) ? values : [values]
     const tableName = this.getTableName(target)
     const { columns, columnsMap } = this.insertColumns(target)

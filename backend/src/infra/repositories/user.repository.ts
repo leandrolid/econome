@@ -1,11 +1,9 @@
 import { User } from 'src/domain/entities/user.entity'
 import { Connection } from '../database/connection'
+import { Repository } from '../database/repository'
 
-export class UserRepository {
-  constructor(private readonly connection: Connection) {}
-
-  async createOne(data: Partial<User>): Promise<User> {
-    const [user] = await this.connection.insertInto(User, data)
-    return User.create(user)
+export class UserRepository extends Repository<User> {
+  constructor(connection: Connection) {
+    super(User, connection)
   }
 }

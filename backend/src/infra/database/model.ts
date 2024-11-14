@@ -1,1 +1,4 @@
-export type Model = new (...args: any[]) => any
+export interface Model {
+  new (...args: any[]): any
+  create(values: any): any
+}
