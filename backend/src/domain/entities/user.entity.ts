@@ -1,6 +1,6 @@
-import { Entity } from 'src/infra/database/entity'
-import { DataClass } from '../adapters/data-class'
-import { Column } from 'src/infra/database/column'
+import { DataClass } from '@domain/adapters/data-class'
+import { Column } from '@infra/database/column'
+import { Entity } from '@infra/database/entity'
 
 @Entity('users')
 export class User extends DataClass {

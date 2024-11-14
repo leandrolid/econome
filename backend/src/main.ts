@@ -1,20 +1,11 @@
 import 'dotenv/config'
 import 'reflect-metadata'
-
-import * as express from 'express'
+import { Server } from './infra/http/implementations/server'
+import { CreateUserController } from './infra/http/implementations/create-user.controller'
 
 async function bootstrap() {
-  const app = express()
-  app.get('/', (req, res) => res.send('Hello World!'))
-  const server = app.listen(process.env.PORT || 3001, () => {
-    console.log('Server is running')
-  })
-  server.on('error', console.error)
-  process.on('SIGINT', () => {
-    server.close(() => {
-      console.log('Server closed')
-      process.exit(0)
-    })
-  })
+  const server = new Server([CreateUserController])
+  server.requests()
+  server.start(Number(process.env.PORT || 3001))
 }
 bootstrap()

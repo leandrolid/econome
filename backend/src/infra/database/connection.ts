@@ -1,7 +1,9 @@
 import * as pgPromise from 'pg-promise'
 import { Model } from './model'
 import { ColumnOptions } from './column'
+import { Injectable } from '../injection/injectable'
 
+@Injectable()
 export class Connection {
   private database: pgPromise.IDatabase<any>
   private static _instance: Connection

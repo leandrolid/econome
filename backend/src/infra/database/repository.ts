@@ -1,4 +1,4 @@
-import { DataClass } from 'src/domain/adapters/data-class'
+import { DataClass } from '@domain/adapters/data-class'
 import { Connection } from './connection'
 import { Model } from './model'
 
