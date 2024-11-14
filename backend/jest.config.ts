@@ -13,6 +13,7 @@ const config: Config = {
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/src/$1',
   },
+  setupFiles: ['<rootDir>/test/config/pre-test/setup.ts'],
 }
 
 export default config

@@ -1,7 +1,5 @@
 const produce = (proto, base, values) => {
-  return Object.freeze(
-    Object.seal(Object.assign(Object.create(proto), base, values)),
-  )
+  return Object.assign(Object.create(proto), base, values)
 }
 
 export class DataClass {
@@ -14,9 +12,7 @@ export class DataClass {
 
   constructor(self) {
     if (self !== DataClass) {
-      throw new Error(
-        `Use ${this.constructor.name}.create(...) instead of new operator`,
-      )
+      throw new Error(`Use ${this.constructor.name}.create(...) instead of new operator`)
     }
   }
 

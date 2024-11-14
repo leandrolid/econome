@@ -1,14 +1,16 @@
 import { User } from 'src/domain/entities/user.entity'
+import { Connection } from '../database/connection'
 
 export class UserRepository {
-  constructor(private readonly connection: any) {}
+  constructor(private readonly connection: Connection) {}
 
-  async insertInto(data: Partial<User>): Promise<User> {
-    const user = User.create(data)
-    const [id] = await this.connection.query(
-      'INSERT INTO users SET ? RETURNING id',
-      user,
+  async createOne(data: Partial<User>): Promise<User> {
+    const [{ id }] = await this.connection.query(
+      `
+      INSERT INTO users (email) VALUES ($1) RETURNING id
+      `,
+      [data.email],
     )
-    return user.copy({ id })
+    return User.create({ ...data, id })
   }
 }

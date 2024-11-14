@@ -6,7 +6,7 @@ export class CreateUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(data: CreateUserInput): Promise<CreateUserOutput> {
-    const user = await this.userRepository.insertInto(data)
+    const user = await this.userRepository.createOne(data)
     return { user }
   }
 }
