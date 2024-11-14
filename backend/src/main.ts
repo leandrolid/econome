@@ -1,8 +1,17 @@
-import { NestFactory } from '@nestjs/core'
-import { AppModule } from './app.module'
+import * as express from 'express'
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule)
-  await app.listen(3000)
+  const app = express()
+  app.get('/', (req, res) => res.send('Hello World!'))
+  const server = app.listen(process.env.PORT || 3001, () => {
+    console.log('Server is running')
+  })
+  server.on('error', console.error)
+  process.on('SIGINT', () => {
+    server.close(() => {
+      console.log('Server closed')
+      process.exit(0)
+    })
+  })
 }
 bootstrap()
