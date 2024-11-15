@@ -23,7 +23,7 @@ export class Connection {
       },
     })({
       host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
+      port: parseInt(process.env.DB_PORT!),
       database: process.env.DB_NAME,
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
@@ -65,7 +65,7 @@ export class Connection {
     const columns = Reflect.getMetadata('columns', target) as Record<string, ColumnOptions>
     const filteredColumns = Object.values(columns)
       .filter((column) => !column.generated)
-      .map((column) => column.name)
+      .map((column) => column.name!)
     return {
       columns: filteredColumns,
       columnsMap: columns,
@@ -74,7 +74,10 @@ export class Connection {
 
   private serialize(inputData: any, columnsMap: Record<string, ColumnOptions>): any {
     return Object.entries(columnsMap).reduce((acc, [, column]) => {
-      acc[column.name] = this.serializeValue(column.type, inputData[column.name] ?? column.default)
+      acc[column.name!] = this.serializeValue(
+        column.type,
+        inputData[column.name!] ?? column.default,
+      )
       return acc
     }, {})
   }
@@ -90,7 +93,7 @@ export class Connection {
 
   private deserialize(rowData: any, columnsMap: Record<string, ColumnOptions>): any {
     return Object.entries(columnsMap).reduce((acc, [key, column]) => {
-      acc[key] = this.deserializeValue(column.type, rowData[column.name])
+      acc[key] = this.deserializeValue(column.type, rowData[column.name!])
       return acc
     }, {})
   }
