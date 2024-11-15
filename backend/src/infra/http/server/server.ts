@@ -36,7 +36,7 @@ export class Server {
     })
   }
 
-  requests(): void {
+  router(): void {
     this.app.use('*', (req, res) => {
       try {
         const controller = resolve<Controller>(makeControllerToken(req.method, req.baseUrl))
