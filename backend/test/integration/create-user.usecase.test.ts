@@ -1,4 +1,4 @@
-import { CreateUserUseCase } from 'src/application/create-user/create-user.usecase'
+import { CreateUserUseCase } from '@app/usecases/create-user/create-user.usecase'
 import { Connection } from 'src/infra/database/connection'
 import { UserRepository } from 'src/infra/repositories/user.repository'
 
@@ -22,13 +22,16 @@ describe('CreateUserUsecase', () => {
 
   it('should create a user', async () => {
     const { user } = await createUserUsecase.execute({
-      email: 'any_email',
+      email: 'any@email.com',
     })
 
     expect(user).toMatchObject(
       expect.objectContaining({
         id: expect.any(Number),
-        email: 'any_email',
+        email: 'any@email.com',
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+        deletedAt: null,
       }),
     )
   })

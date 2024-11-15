@@ -1,10 +1,10 @@
-import { CreateUserUseCase } from '@app/create-user/create-user.usecase'
+import { CreateUserUseCase } from '@app/usecases/create-user/create-user.usecase'
+import { Controller } from '@infra/http/interfaces/controller.interface'
+import { HttpMessages } from '@infra/http/interfaces/message.enum'
+import { Req } from '@infra/http/interfaces/req.interface'
+import { Res } from '@infra/http/interfaces/res.interface'
+import { HttpStatusCode } from '@infra/http/interfaces/status.enum'
 import { Injectable } from '@infra/injection/injectable'
-import { Controller } from '../interfaces/controller.interface'
-import { HttpMessages } from '../interfaces/message.enum'
-import { Req } from '../interfaces/req.interface'
-import { Res } from '../interfaces/res.interface'
-import { HttpStatusCode } from '../interfaces/status.enum'
 
 @Injectable({
   controller: {
