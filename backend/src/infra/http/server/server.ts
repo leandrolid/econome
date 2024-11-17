@@ -5,6 +5,8 @@ import { Controller } from '../interfaces/controller.interface'
 import { HttpMessages } from '../interfaces/message.enum'
 import { HttpStatusCode } from '../interfaces/status.enum'
 import { resolve } from '@infra/injection/resolve'
+import { HttpError } from '@domain/errors/http.error'
+import { NotFoundError } from '@domain/errors/not-found.error'
 
 export class Server {
   private readonly app: express.Express
@@ -39,16 +41,26 @@ export class Server {
   router(): void {
     this.app.use('*', (req, res) => {
       try {
-        const controller = resolve<Controller>(makeControllerToken(req.method, req.baseUrl))
+        const controller = this.getController(req.method, req.baseUrl)
         return controller.execute(req, res)
       } catch (error) {
         console.error(error)
-        return res.status(HttpStatusCode.NOT_FOUND).send(
-          HttpMessages.NOT_FOUND({
-            message: 'Route not found',
-          }),
-        )
+        if (error instanceof HttpError) {
+          return res.status(error.statusCode).send(error)
+        }
+        return res
+          .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
+          .send(HttpMessages.INTERNAL_SERVER_ERROR())
       }
     })
+  }
+
+  private getController(method: string, path: string): Controller {
+    try {
+      return resolve<Controller>(makeControllerToken(method, path))
+    } catch (error) {
+      console.error(error)
+      throw new NotFoundError('Route not found')
+    }
   }
 }

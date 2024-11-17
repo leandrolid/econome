@@ -1,23 +1,20 @@
-import { CreateUserUseCase } from '@app/usecases/create-user/create-user.usecase'
-import { Connection } from 'src/infra/database/connection'
-import { UserRepository } from 'src/infra/repositories/user.repository'
+import { CreateUserUseCase } from '@app/create-user/create-user.usecase'
+import { Connection } from '@infra/database/connections/pg-connection'
+import { resolve } from '@infra/injection/resolve'
 
 describe('CreateUserUsecase', () => {
   let createUserUsecase: CreateUserUseCase
-  let userRepository: UserRepository
-  const connection = Connection.instance
 
   beforeEach(() => {
-    userRepository = new UserRepository(connection)
-    createUserUsecase = new CreateUserUseCase(userRepository)
+    createUserUsecase = resolve(CreateUserUseCase.name)
   })
 
   afterEach(async () => {
-    await connection.query('DELETE FROM users', [])
+    await Connection.instance.query('DELETE FROM users', [])
   })
 
   afterAll(async () => {
-    await connection.destroy()
+    await Connection.instance.destroy()
   })
 
   it('should create a user', async () => {

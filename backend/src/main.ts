@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import 'reflect-metadata'
 import { Server } from './infra/http/server/server'
-import { CreateUserController } from '@app/controllers/create-user.controller'
+import { CreateUserController } from '@infra/http/controllers/create-user.controller'
 
 async function bootstrap() {
   const server = new Server([CreateUserController])

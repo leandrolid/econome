@@ -1,5 +1,5 @@
 import { ZodError } from 'zod'
-import { Validation } from './validation'
+import { Validation } from '../interfaces/validation.interface'
 import { BadRequestError } from '@domain/errors/bad-request.error'
 import { resolve } from '@infra/injection/resolve'
 
@@ -13,13 +13,8 @@ export const Validate = (validationTarget: ValidationTarget): ParameterDecorator
       const validation = resolve<Validation<any>>(validationTarget.name)
       const originalMethod = target[propertyKey!]
       target[propertyKey!] = (...args: any[]) => {
-        const data = validation.validate(args[parameterIndex])
-        return originalMethod(
-          ...args
-            .slice(0, parameterIndex)
-            .concat(data)
-            .concat(args.slice(parameterIndex + 1)),
-        )
+        args[parameterIndex] = validation.validate(args[parameterIndex])
+        return originalMethod(...args)
       }
     } catch (error) {
       const err = (error as ZodError).errors[0]

@@ -1,10 +1,11 @@
 import * as pgPromise from 'pg-promise'
-import { Model } from './model'
-import { ColumnOptions } from './column'
-import { Injectable } from '../injection/injectable'
+import { Model } from '../interfaces/model.interface'
+import { Injectable } from '@infra/injection/injectable'
+import { ColumnOptions } from '../decorators/column.decorator'
+import { Connection as ConnectionInterface } from '../interfaces/connection.interface'
 
 @Injectable()
-export class Connection {
+export class Connection implements ConnectionInterface {
   private database: pgPromise.IDatabase<any>
   private static _instance: Connection
 
@@ -85,7 +86,7 @@ export class Connection {
   private serializeValue(type: ColumnOptions['type'], value: any) {
     switch (type) {
       case 'timestamp':
-        return value instanceof Date ? value.toISOString() : value
+        return value instanceof Date ? pgPromise.as.date(value) : value
       default:
         return value
     }

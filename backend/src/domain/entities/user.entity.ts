@@ -1,6 +1,6 @@
 import { DataClass } from '@domain/adapters/data-class'
-import { Column } from '@infra/database/column'
-import { Entity } from '@infra/database/entity'
+import { Column } from '@infra/database/decorators/column.decorator'
+import { Entity } from '@infra/database/decorators/entity.decorator'
 
 @Entity('users')
 export class User extends DataClass {

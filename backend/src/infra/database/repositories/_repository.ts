@@ -1,6 +1,6 @@
 import { DataClass } from '@domain/adapters/data-class'
-import { Connection } from './connection'
-import { Model } from './model'
+import { Model } from '@infra/database/interfaces/model.interface'
+import { Connection } from '@infra/database/interfaces/connection.interface'
 
 export class Repository<Entity extends DataClass> {
   constructor(
