@@ -19,4 +19,8 @@ export class DataClass {
   copy(values?: Omit<Partial<this>, keyof DataClass>): this {
     return produce(Object.getPrototypeOf(this), this, values)
   }
+
+  equals(other: this): boolean {
+    return Object.keys(this).every((key) => this[key] === other[key])
+  }
 }
