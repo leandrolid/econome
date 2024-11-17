@@ -1,3 +1,5 @@
+import { ClassLike } from '@infra/types/class-like.interface'
+
 export class Context {
   private static _instance: Context
   private injectables: Map<any, any> = new Map()
@@ -25,12 +27,15 @@ export class Context {
     return instance
   }
 
-  set<T>(token: string, target: new (...args: any[]) => T): void {
+  set<T>(token: string, target: ClassLike<T>): void {
     this.injectables.set(token, target)
   }
 
   private getDependencies(Injectable: any): any[] {
     const dependencies = Reflect.getMetadata('design:paramtypes', Injectable) || []
-    return dependencies.map((dep: any) => this.get(dep.name))
+    return dependencies.map((dep: any) => {
+      if (!dep.name) return dep
+      return this.get(dep.name)
+    })
   }
 }

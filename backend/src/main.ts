@@ -1,5 +1,7 @@
 import 'dotenv/config'
 import 'reflect-metadata'
+import '@infra/injection/register'
+
 import { Server } from './infra/http/server/server'
 import { CreateUserController } from '@infra/http/controllers/create-user.controller'
 
