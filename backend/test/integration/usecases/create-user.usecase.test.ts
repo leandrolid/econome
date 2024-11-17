@@ -32,4 +32,12 @@ describe('CreateUserUsecase', () => {
       }),
     )
   })
+
+  it('should not create a duplicated user', async () => {
+    await createUserUsecase.execute({ email: 'any@email.com' })
+
+    await expect(() => createUserUsecase.execute({ email: 'any@email.com' })).rejects.toThrow(
+      'Email already registered',
+    )
+  })
 })

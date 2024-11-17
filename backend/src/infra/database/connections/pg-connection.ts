@@ -4,6 +4,8 @@ import { ColumnOptions } from '../decorators/column.decorator'
 import { Connection as ConnectionInterface } from '../interfaces/connection.interface'
 import { DataClass } from '@domain/adapters/data-class'
 
+type Target = typeof DataClass
+
 @Injectable()
 export class Connection implements ConnectionInterface {
   private database: pgPromise.IDatabase<any>
@@ -18,9 +20,8 @@ export class Connection implements ConnectionInterface {
 
   private constructor() {
     this.database = pgPromise({
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       query(e) {
-        // console.log('QUERY:', e.query)
+        console.log('QUERY:', e.query)
       },
     })({
       host: process.env.DB_HOST,
@@ -39,11 +40,19 @@ export class Connection implements ConnectionInterface {
     return this.database.$pool.end()
   }
 
-  async insertInto<T>(Target: typeof DataClass, values: Partial<T> | Partial<T>[]): Promise<T[]> {
+  async insertInto<T>(Target: Target, values: Partial<T> | Partial<T>[]): Promise<T[]> {
     const arrayValues = Array.isArray(values) ? values : [values]
     const tableName = this.getTableName(Target)
-    const { columns, columnsMap } = this.insertColumns(Target)
-    const serializedValues = arrayValues.map((value) => this.serialize(value, columnsMap))
+    const { columns, columnsMap } = this.getColumns(Target)
+    const serializedValues = arrayValues.map((value) =>
+      this.serialize({
+        inputData: value,
+        columnsMap,
+        options: {
+          useDefault: true,
+        },
+      }),
+    )
     const variables = serializedValues.map((_, rowIndex) => {
       return `(${columns.map((_, columnIndex) => `$${rowIndex * columns.length + columnIndex + 1}`).join(', ')})`
     })
@@ -58,14 +67,34 @@ export class Connection implements ConnectionInterface {
     return results.map((result) => this.deserialize(result, columnsMap))
   }
 
-  private getTableName(Target: typeof DataClass): string {
+  async exists<T>(Target: Target, values: Partial<T>): Promise<boolean> {
+    const tableName = this.getTableName(Target)
+    const { columnsMap } = this.getColumns(Target, { includeGenerated: true })
+    const serializedValues = this.serialize({
+      inputData: values,
+      columnsMap,
+    })
+    const columns = Object.keys(serializedValues)
+    const results = await this.query(
+      `SELECT EXISTS(
+        SELECT 1
+        FROM ${tableName}
+        WHERE ${columns.map((column, index) => `${column} = $${index + 1}`).join(' AND ')}
+        LIMIT 1
+      )`,
+      columns.map((column) => serializedValues[column]),
+    )
+    return results[0].exists
+  }
+
+  private getTableName(Target: Target): string {
     return Reflect.getMetadata('tableName', Target)
   }
 
-  private insertColumns(Target: typeof DataClass) {
+  private getColumns(Target: Target, options: { includeGenerated?: boolean } = {}) {
     const columns = Reflect.getMetadata('columns', Target) as Record<string, ColumnOptions>
     const filteredColumns = Object.values(columns)
-      .filter((column) => !column.generated)
+      .filter((column) => (options.includeGenerated ? true : !column.generated))
       .map((column) => column.name!)
     return {
       columns: filteredColumns,
@@ -73,13 +102,22 @@ export class Connection implements ConnectionInterface {
     }
   }
 
-  private serialize(inputData: any, columnsMap: Record<string, ColumnOptions>): any {
-    return Object.entries(columnsMap).reduce((acc, [, column]) => {
-      acc[column.name!] = this.serializeValue(
-        column.type,
-        inputData[column.name!] ?? column.default,
-      )
-      return acc
+  private serialize({
+    inputData,
+    columnsMap,
+    options = { useDefault: false },
+  }: {
+    inputData: any
+    columnsMap: Record<string, ColumnOptions>
+    options?: {
+      useDefault?: boolean
+    }
+  }): any {
+    return Object.entries(columnsMap).reduce((acc, [key, column]) => {
+      const defaultValue = options.useDefault ? column.default : undefined
+      const value = this.serializeValue(column.type, inputData[key] ?? defaultValue)
+      if (value === undefined) return acc
+      return { ...acc, [column.name!]: value }
     }, {})
   }
 

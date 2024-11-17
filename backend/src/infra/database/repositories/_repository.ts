@@ -12,4 +12,8 @@ export class Repository<Entity extends DataClass> {
     // @ts-ignore - TODO: Fix this
     return this.Target.create(entity)
   }
+
+  async exists(data: Partial<Entity>): Promise<boolean> {
+    return this.connection.exists(this.Target, data)
+  }
 }
