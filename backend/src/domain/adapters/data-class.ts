@@ -20,7 +20,10 @@ export class DataClass {
     return produce(Object.getPrototypeOf(this), this, values)
   }
 
-  equals(other: this): boolean {
-    return Object.keys(this).every((key) => this[key] === other[key])
+  equals(other: Record<string, any>): boolean {
+    return (
+      Object.getPrototypeOf(this) === Object.getPrototypeOf(other) &&
+      Object.keys(this).every((key) => this[key] === other[key])
+    )
   }
 }
