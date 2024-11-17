@@ -1,5 +1,5 @@
-import { Model } from './model.interface'
+import { DataClass } from '@domain/adapters/data-class'
 
 export interface Connection {
-  insertInto<T>(target: Model, values: Partial<T> | Partial<T>[]): Promise<T[]>
+  insertInto<T>(target: typeof DataClass, values: Partial<T> | Partial<T>[]): Promise<T[]>
 }

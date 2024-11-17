@@ -1,8 +1,8 @@
 import * as pgPromise from 'pg-promise'
-import { Model } from '../interfaces/model.interface'
 import { Injectable } from '@infra/injection/injectable'
 import { ColumnOptions } from '../decorators/column.decorator'
 import { Connection as ConnectionInterface } from '../interfaces/connection.interface'
+import { DataClass } from '@domain/adapters/data-class'
 
 @Injectable()
 export class Connection implements ConnectionInterface {
@@ -39,10 +39,10 @@ export class Connection implements ConnectionInterface {
     return this.database.$pool.end()
   }
 
-  async insertInto<T>(target: Model, values: Partial<T> | Partial<T>[]): Promise<T[]> {
+  async insertInto<T>(Target: typeof DataClass, values: Partial<T> | Partial<T>[]): Promise<T[]> {
     const arrayValues = Array.isArray(values) ? values : [values]
-    const tableName = this.getTableName(target)
-    const { columns, columnsMap } = this.insertColumns(target)
+    const tableName = this.getTableName(Target)
+    const { columns, columnsMap } = this.insertColumns(Target)
     const serializedValues = arrayValues.map((value) => this.serialize(value, columnsMap))
     const variables = serializedValues.map((_, rowIndex) => {
       return `(${columns.map((_, columnIndex) => `$${rowIndex * columns.length + columnIndex + 1}`).join(', ')})`
@@ -58,12 +58,12 @@ export class Connection implements ConnectionInterface {
     return results.map((result) => this.deserialize(result, columnsMap))
   }
 
-  private getTableName(target: Model): string {
-    return Reflect.getMetadata('tableName', target)
+  private getTableName(Target: typeof DataClass): string {
+    return Reflect.getMetadata('tableName', Target)
   }
 
-  private insertColumns(target: Model) {
-    const columns = Reflect.getMetadata('columns', target) as Record<string, ColumnOptions>
+  private insertColumns(Target: typeof DataClass) {
+    const columns = Reflect.getMetadata('columns', Target) as Record<string, ColumnOptions>
     const filteredColumns = Object.values(columns)
       .filter((column) => !column.generated)
       .map((column) => column.name!)
