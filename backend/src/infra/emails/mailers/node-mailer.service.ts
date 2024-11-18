@@ -18,13 +18,11 @@ export class NodeMailerService implements MailerService {
     options: SMTPTransport.Options = {
       host: process.env.EMAIL_HOST,
       port: parseInt(process.env.EMAIL_PORT!),
-      secure: process.env.EMAIL_SECURE === 'true',
+      authMethod: 'PLAIN',
+      requireTLS: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD,
-      },
-      tls: {
-        rejectUnauthorized: false,
       },
     },
   ) {
@@ -33,6 +31,7 @@ export class NodeMailerService implements MailerService {
 
   async send(config: MailerConfig): Promise<MailerOutput> {
     const res = await this.transporter.sendMail({
+      from: process.env.EMAIL_FROM,
       to: config.to,
       subject: config.subject,
       html: this.getTemplate(config),
@@ -47,6 +46,6 @@ export class NodeMailerService implements MailerService {
 
   private getTemplate(config: { template: MailerTemplate; replacements?: Record<string, string> }) {
     const templatePath = resolve(__dirname, '..', 'templates', `${config.template}.pug`)
-    return pug.compileFile(templatePath)(config.replacements)
+    return pug.compileFile(templatePath, { pretty: true })(config.replacements)
   }
 }
