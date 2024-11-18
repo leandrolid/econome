@@ -16,4 +16,16 @@ export class Repository<Entity extends DataClass> {
   async exists(data: Partial<Entity>): Promise<boolean> {
     return this.connection.exists(this.Target, data)
   }
+
+  async startTransaction(): Promise<void> {
+    await this.connection.query('BEGIN')
+  }
+
+  async commitTransaction(): Promise<void> {
+    await this.connection.query('COMMIT')
+  }
+
+  async rollbackTransaction(): Promise<void> {
+    await this.connection.query('ROLLBACK')
+  }
 }

@@ -15,15 +15,22 @@ export class CreateUserUseCase {
   ) {}
 
   async execute(data: CreateUserInput): Promise<CreateUserOutput> {
-    const isRegistered = await this.userRepository.exists({ email: data.email })
-    if (isRegistered) throw new BadRequestError('Email already registered')
-    const user = await this.userRepository.createOne({ email: data.email })
-    await this.mailerService.send({
-      to: user.email,
-      subject: 'E-mail confirmation',
-      template: 'confirmation-code',
-      replacements: { code: '123456' },
-    })
-    return { user }
+    try {
+      await this.userRepository.startTransaction()
+      const isRegistered = await this.userRepository.exists({ email: data.email })
+      if (isRegistered) throw new BadRequestError('Email already registered')
+      const user = await this.userRepository.createOne({ email: data.email })
+      await this.mailerService.send({
+        to: user.email,
+        subject: 'E-mail confirmation',
+        template: 'confirmation-code',
+        replacements: { code: '123456' },
+      })
+      await this.userRepository.commitTransaction()
+      return { user }
+    } catch (error) {
+      await this.userRepository.rollbackTransaction()
+      throw error
+    }
   }
 }
