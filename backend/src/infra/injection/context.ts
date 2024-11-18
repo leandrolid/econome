@@ -31,6 +31,11 @@ export class Context {
     this.injectables.set(token, target)
   }
 
+  useValue<T>(name: string, target: T, singleton: boolean = true): T {
+    if (singleton) this.singletons.set(name, target)
+    return target
+  }
+
   private getDependencies(Injectable: any): any[] {
     const dependencies = Reflect.getMetadata('design:paramtypes', Injectable) || []
     return dependencies.map((dep: any) => {

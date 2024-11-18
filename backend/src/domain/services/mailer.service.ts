@@ -9,6 +9,7 @@ export type MailerConfig = {
   template: MailerTemplate
   replacements?: Record<string, string>
 }
+
 export type MailerTemplate = 'confirmation-code'
 
 export type MailerOutput = {

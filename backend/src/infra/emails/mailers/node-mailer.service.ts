@@ -10,11 +10,12 @@ import { resolve } from 'path'
 import * as pug from 'pug'
 
 export class NodeMailerService implements MailerService {
+  private readonly transporter: nodemailer.Transporter<
+    SMTPTransport.SentMessageInfo,
+    SMTPTransport.Options
+  >
   constructor(
-    private readonly transporter: nodemailer.Transporter<
-      SMTPTransport.SentMessageInfo,
-      SMTPTransport.Options
-    > = nodemailer.createTransport({
+    options: SMTPTransport.Options = {
       host: process.env.EMAIL_HOST,
       port: parseInt(process.env.EMAIL_PORT!),
       secure: process.env.EMAIL_SECURE === 'true',
@@ -25,8 +26,10 @@ export class NodeMailerService implements MailerService {
       tls: {
         rejectUnauthorized: false,
       },
-    }),
-  ) {}
+    },
+  ) {
+    this.transporter = nodemailer.createTransport(options)
+  }
 
   async send(config: MailerConfig): Promise<MailerOutput> {
     const res = await this.transporter.sendMail({
