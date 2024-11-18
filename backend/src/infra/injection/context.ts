@@ -3,7 +3,7 @@ import { ClassLike } from '@infra/types/class-like.interface'
 export class Context {
   private static _instance: Context
   private injectables: Map<any, any> = new Map()
-  private singletons: Map<any, any> = new Map()
+  private instances: Map<any, any> = new Map()
 
   static get instance(): Context {
     if (!this._instance) {
@@ -15,15 +15,13 @@ export class Context {
   private constructor() {}
 
   get<T>(name: string): T {
+    if (this.instances.has(name)) return this.instances.get(name)
     const Injectable = this.injectables.get(name)
     if (!Injectable) throw new Error(`Injectable not found: ${name}`)
-    if (this.singletons.has(name)) return this.singletons.get(name)
-    const dependencies = this.getDependencies(Injectable)
     const instance = Reflect.has(Injectable, 'instance')
       ? Injectable.instance
-      : new Injectable(...dependencies)
-    const scope = Reflect.getMetadata('scope', Injectable)
-    if (scope === 'singleton') this.singletons.set(name, instance)
+      : Reflect.construct(Injectable, this.getDependencies(Injectable))
+    if (this.isSingleton(Injectable)) this.instances.set(name, instance)
     return instance
   }
 
@@ -32,7 +30,7 @@ export class Context {
   }
 
   useValue<T>(name: string, target: T, singleton: boolean = true): T {
-    if (singleton) this.singletons.set(name, target)
+    if (singleton) this.instances.set(name, target)
     return target
   }
 
@@ -42,5 +40,10 @@ export class Context {
       if (!dep.name) return dep
       return this.get(dep.name)
     })
+  }
+
+  private isSingleton(Injectable: any): boolean {
+    const scope = Reflect.getMetadata('scope', Injectable)
+    return scope === 'singleton'
   }
 }
