@@ -1,19 +1,17 @@
 import * as pgPromise from 'pg-promise'
-import { Injectable } from '@infra/injection/injectable'
 import { ColumnOptions } from '../decorators/column.decorator'
-import { Connection as ConnectionInterface } from '../interfaces/connection.interface'
+import { Connection } from '../interfaces/connection.interface'
 import { DataClass } from '@domain/adapters/data-class'
 
 type Target = typeof DataClass
 
-@Injectable()
-export class Connection implements ConnectionInterface {
+export class PgConnection implements Connection {
   private database: pgPromise.IDatabase<any>
-  private static _instance: Connection
+  private static _instance: PgConnection
 
-  static get instance(): Connection {
+  static get instance(): PgConnection {
     if (!this._instance) {
-      this._instance = new Connection()
+      this._instance = new PgConnection()
     }
     return this._instance
   }
@@ -32,7 +30,7 @@ export class Connection implements ConnectionInterface {
     })
   }
 
-  query(sql: string, values: any[]): Promise<any> {
+  query(sql: string, values?: any[]): Promise<any> {
     return this.database.query(sql, values)
   }
 
