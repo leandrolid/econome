@@ -9,7 +9,12 @@ const config: Config = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['src/**/*.(t|j)s', '!src/main.ts', '!src/**/*.(enum|interface|dto).ts'],
+  collectCoverageFrom: [
+    'src/**/*.(t|j)s',
+    '!src/main.ts',
+    '!src/**/*.(enum|interface|dto).ts',
+    '!src/infra/validations/**',
+  ],
   coverageDirectory: 'coverage',
   testEnvironment: 'node',
   modulePaths: [compilerOptions.baseUrl],

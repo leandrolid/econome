@@ -7,8 +7,9 @@ export type MailerConfig = {
   to: string
   subject: string
   template: MailerTemplate
+  replacements?: Record<string, string>
 }
-type MailerTemplate = 'confirmation-code'
+export type MailerTemplate = 'confirmation-code'
 
 export type MailerOutput = {
   id: string

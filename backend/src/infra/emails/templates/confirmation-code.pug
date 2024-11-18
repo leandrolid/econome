@@ -1,0 +1,14 @@
+html(lang="en")
+  head
+    include _head.pug
+    title Confirm your email
+
+.container
+  .header
+    h1 Confirm your email
+  .content.flex-center.column
+    p Your confirmation code is:
+    h2 #{code}
+    p If you didn't request this code, you can safely ignore this email.
+  .footer
+    p This is an automated email, please do not reply.
