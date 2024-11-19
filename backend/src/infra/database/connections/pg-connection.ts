@@ -1,9 +1,9 @@
 import * as pgPromise from 'pg-promise'
 import { ColumnOptions } from '../decorators/column.decorator'
 import { Connection } from '../interfaces/connection.interface'
-import { DataClass } from '@domain/adapters/data-class'
+import { BaseEntity } from '@domain/entities/_base.entity'
 
-type Target = typeof DataClass
+type Target = typeof BaseEntity
 
 export class PgConnection implements Connection {
   private database: pgPromise.IDatabase<any>

@@ -2,21 +2,21 @@ const produce = (proto, base, values) => {
   return Object.assign(Object.create(proto), base, values)
 }
 
-export class DataClass {
-  static create<Type extends DataClass>(
+export abstract class BaseEntity {
+  static create<Type extends BaseEntity>(
     this: { new (v): Type },
-    values?: Omit<Partial<Type>, keyof DataClass>,
+    values?: Omit<Partial<Type>, keyof BaseEntity>,
   ): Type {
-    return produce(this.prototype, new this(DataClass), values)
+    return produce(this.prototype, new this(BaseEntity), values)
   }
 
   constructor(self) {
-    if (self !== DataClass) {
+    if (self !== BaseEntity) {
       throw new Error(`Use ${this.constructor.name}.create(...) instead of new operator`)
     }
   }
 
-  copy(values?: Omit<Partial<this>, keyof DataClass>): this {
+  copy(values?: Omit<Partial<this>, keyof BaseEntity>): this {
     return produce(Object.getPrototypeOf(this), this, values)
   }
 

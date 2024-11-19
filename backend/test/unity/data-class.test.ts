@@ -1,7 +1,7 @@
-import { DataClass } from '@domain/adapters/data-class'
+import { BaseEntity } from '@domain/entities/_base.entity'
 
-describe('DataClass', () => {
-  class AnyClass extends DataClass {
+describe('BaseEntity', () => {
+  class AnyClass extends BaseEntity {
     anyProperty: string
   }
 

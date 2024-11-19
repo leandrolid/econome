@@ -1,9 +1,9 @@
-import { DataClass } from '@domain/adapters/data-class'
 import { Column } from '@infra/database/decorators/column.decorator'
 import { Entity } from '@infra/database/decorators/entity.decorator'
+import { BaseEntity } from './_base.entity'
 
 @Entity('users')
-export class User extends DataClass {
+export class User extends BaseEntity {
   @Column({ name: 'id', generated: true })
   id: number
 

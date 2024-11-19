@@ -1,9 +1,9 @@
-import { DataClass } from '@domain/adapters/data-class'
+import { BaseEntity } from '@domain/entities/_base.entity'
 import { Connection } from '@infra/database/interfaces/connection.interface'
 
-export class Repository<Entity extends DataClass> {
+export class Repository<Entity extends BaseEntity> {
   constructor(
-    private readonly Target: typeof DataClass,
+    private readonly Target: typeof BaseEntity,
     protected readonly connection: Connection,
   ) {}
 
