@@ -5,6 +5,7 @@ import { UserRepository } from '@infra/database/repositories/user.repository'
 import { BadRequestError } from '@domain/errors/bad-request.error'
 import { MailerService } from '@domain/services/mailer.service'
 import { ResolveParam } from '@infra/injection/resolve'
+import { HashService } from '@domain/services/hash.service'
 
 @Injectable()
 export class CreateUserUseCase {
@@ -12,6 +13,8 @@ export class CreateUserUseCase {
     private readonly userRepository: UserRepository,
     @ResolveParam('MailerService')
     private readonly mailerService: MailerService,
+    @ResolveParam('HashService')
+    private readonly hashService: HashService,
   ) {}
 
   async execute(data: CreateUserInput): Promise<CreateUserOutput> {
@@ -24,7 +27,7 @@ export class CreateUserUseCase {
         to: user.email,
         subject: 'E-mail confirmation',
         template: 'confirmation-code',
-        replacements: { code: '123456' },
+        replacements: { code: this.hashService.random(6) },
       })
       await this.userRepository.commitTransaction()
       return { user }

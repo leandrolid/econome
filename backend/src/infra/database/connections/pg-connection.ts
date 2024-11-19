@@ -18,8 +18,8 @@ export class PgConnection implements Connection {
 
   private constructor() {
     this.database = pgPromise({
-      query(e) {
-        console.log('QUERY:', e.query)
+      error(err, e) {
+        console.error(err, e)
       },
     })({
       host: process.env.DB_HOST,
