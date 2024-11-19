@@ -3,20 +3,17 @@ import { CreateUserInput } from './create-user.input'
 import { CreateUserOutput } from './create-user.output'
 import { UserRepository } from '@infra/database/repositories/user.repository'
 import { BadRequestError } from '@domain/errors/bad-request.error'
-import { MailerService } from '@domain/services/mailer.service'
-import { ResolveParam } from '@infra/injection/resolve'
-import { HashService } from '@domain/services/hash.service'
 import { UserCodeRepository } from '@infra/database/repositories/user-code.repository'
+import { CryptoHashService } from '@infra/text/hash/hash.service'
+import { EmailQueueService } from '@infra/queues/email-queue/email-queue.service'
 
 @Injectable()
 export class CreateUserUseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly userCodeRepository: UserCodeRepository,
-    @ResolveParam('MailerService')
-    private readonly mailerService: MailerService,
-    @ResolveParam('HashService')
-    private readonly hashService: HashService,
+    private readonly emailQueueService: EmailQueueService,
+    private readonly hashService: CryptoHashService,
   ) {}
 
   async execute(data: CreateUserInput): Promise<CreateUserOutput> {
@@ -29,7 +26,7 @@ export class CreateUserUseCase {
         userId: user.id,
         code: this.hashService.random(6),
       })
-      await this.mailerService.send({
+      await this.emailQueueService.enqueue({
         to: user.email,
         subject: 'E-mail confirmation',
         template: 'confirmation-code',

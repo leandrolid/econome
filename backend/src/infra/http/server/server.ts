@@ -7,6 +7,10 @@ import { HttpStatusCode } from '../interfaces/status.enum'
 import { resolve } from '@infra/injection/resolve'
 import { HttpError } from '@domain/errors/http.error'
 import { NotFoundError } from '@domain/errors/not-found.error'
+import { ExpressAdapter } from '@bull-board/express'
+import { BullAdapter } from '@bull-board/api/bullAdapter'
+import { createBullBoard } from '@bull-board/api'
+import { QueueService } from '@domain/services/queue.service'
 
 export class Server {
   private readonly app: express.Express
@@ -39,6 +43,14 @@ export class Server {
   }
 
   router(): void {
+    const serverAdapter = new ExpressAdapter()
+    serverAdapter.setBasePath('/queues')
+    createBullBoard({
+      queues: [new BullAdapter(resolve<QueueService<any>>('EmailQueueService').getQueue())],
+      serverAdapter: serverAdapter,
+    })
+    this.app.use('/queues', serverAdapter.getRouter())
+
     this.app.use('*', (req, res) => {
       try {
         const controller = this.getController(req.method, req.baseUrl)

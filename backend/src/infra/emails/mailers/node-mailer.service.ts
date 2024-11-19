@@ -4,11 +4,13 @@ import {
   MailerService,
   MailerTemplate,
 } from '@domain/services/mailer.service'
+import { Injectable } from '@infra/injection/injectable'
 import * as nodemailer from 'nodemailer'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { resolve } from 'path'
 import * as pug from 'pug'
 
+@Injectable()
 export class NodeMailerService implements MailerService {
   private readonly transporter: nodemailer.Transporter<
     SMTPTransport.SentMessageInfo,
