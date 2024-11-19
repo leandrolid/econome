@@ -1,7 +1,7 @@
 export type ColumnOptions = {
   name?: string
   default?: any
-  type?: 'timestamp' | 'text'
+  type?: 'timestamp' | 'text' | 'integer'
   generated?: boolean
 }
 

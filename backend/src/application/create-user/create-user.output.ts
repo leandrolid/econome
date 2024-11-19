@@ -3,4 +3,8 @@ export type CreateUserOutput = {
     id: number
     email: string
   }
+  userCode: {
+    userId: number
+    code: string
+  }
 }

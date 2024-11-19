@@ -6,11 +6,13 @@ import { BadRequestError } from '@domain/errors/bad-request.error'
 import { MailerService } from '@domain/services/mailer.service'
 import { ResolveParam } from '@infra/injection/resolve'
 import { HashService } from '@domain/services/hash.service'
+import { UserCodeRepository } from '@infra/database/repositories/user-code.repository'
 
 @Injectable()
 export class CreateUserUseCase {
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly userCodeRepository: UserCodeRepository,
     @ResolveParam('MailerService')
     private readonly mailerService: MailerService,
     @ResolveParam('HashService')
@@ -23,14 +25,18 @@ export class CreateUserUseCase {
       const isRegistered = await this.userRepository.exists({ email: data.email })
       if (isRegistered) throw new BadRequestError('Email already registered')
       const user = await this.userRepository.createOne({ email: data.email })
+      const userCode = await this.userCodeRepository.createOne({
+        userId: user.id,
+        code: this.hashService.random(6),
+      })
       await this.mailerService.send({
         to: user.email,
         subject: 'E-mail confirmation',
         template: 'confirmation-code',
-        replacements: { code: this.hashService.random(6) },
+        replacements: { code: userCode.code },
       })
       await this.userRepository.commitTransaction()
-      return { user }
+      return { user, userCode }
     } catch (error) {
       await this.userRepository.rollbackTransaction()
       throw error
