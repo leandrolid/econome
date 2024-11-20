@@ -1,15 +1,14 @@
 export type ColumnOptions = {
-  name?: string
+  name: string
+  type: 'timestamp' | 'text' | 'integer' | 'bigint'
   default?: any
-  type?: 'timestamp' | 'text' | 'integer'
   generated?: boolean
 }
 
-export const Column = (options: ColumnOptions = {}) => {
+export const Column = (options: ColumnOptions): PropertyDecorator => {
   return (target: any, key: string) => {
     const columns = Reflect.getMetadata('columns', target.constructor) || {}
-    if (options.name) columns[key] = options
-    else columns[key] = { name: key }
+    columns[key] = options
     Reflect.defineMetadata('columns', columns, target.constructor)
   }
 }
