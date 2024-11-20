@@ -6,6 +6,7 @@ import { UserCodeRepository } from '@infra/database/repositories/user-code.repos
 import { CryptoHashService } from '@infra/services/hash/hash.service'
 import { EmailQueueService } from '@infra/services/queues/email/email-queue.service'
 import { Injectable } from '@nestjs/common'
+import { Transaction } from '@infra/database/decorators/transaction.decorator'
 
 @Injectable()
 export class CreateUserUseCase {
@@ -16,27 +17,21 @@ export class CreateUserUseCase {
     private readonly hashService: CryptoHashService,
   ) {}
 
+  @Transaction('Error creating user')
   async execute(data: CreateUserInput): Promise<CreateUserOutput> {
-    try {
-      await this.userRepository.startTransaction()
-      const isRegistered = await this.userRepository.exists({ email: data.email })
-      if (isRegistered) throw new BadRequestError('Email already registered')
-      const user = await this.userRepository.createOne({ email: data.email })
-      const userCode = await this.userCodeRepository.createOne({
-        userId: user.id,
-        code: this.hashService.random(6),
-      })
-      await this.emailQueueService.enqueue({
-        to: user.email,
-        subject: 'E-mail confirmation',
-        template: 'confirmation-code',
-        replacements: { code: userCode.code },
-      })
-      await this.userRepository.commitTransaction()
-      return { user, userCode }
-    } catch (error) {
-      await this.userRepository.rollbackTransaction()
-      throw error
-    }
+    const isRegistered = await this.userRepository.exists({ email: data.email })
+    if (isRegistered) throw new BadRequestError('Email already registered')
+    const user = await this.userRepository.createOne({ email: data.email })
+    const userCode = await this.userCodeRepository.createOne({
+      userId: user.id,
+      code: this.hashService.random(6),
+    })
+    await this.emailQueueService.enqueue({
+      to: user.email,
+      subject: 'E-mail confirmation',
+      template: 'confirmation-code',
+      replacements: { code: userCode.code },
+    })
+    return { user, userCode }
   }
 }
