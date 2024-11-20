@@ -2,7 +2,7 @@ import { Logger } from '@nestjs/common'
 import * as fs from 'fs'
 import * as path from 'path'
 
-type Client = {
+export type Client = {
   query: (sql: string, values?: any[]) => Promise<any[]>
 }
 

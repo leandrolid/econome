@@ -29,5 +29,11 @@
         "src/infra/*"
       ]
     }
-  }
+  },
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "dist"
+  ]
 }

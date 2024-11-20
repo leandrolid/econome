@@ -1,10 +1,10 @@
-import { Connection } from '../interfaces/connection.interface'
+import { Client } from './_migrations'
 
 export class CreateUsersTable1732064194615 {
-  constructor(private readonly connection: Connection) {}
+  constructor(private readonly client: Client) {}
 
   async up() {
-    await this.connection.query(`
+    await this.client.query(`
       CREATE TABLE users (
         id SERIAL PRIMARY KEY,
         email TEXT NOT NULL,
@@ -16,6 +16,6 @@ export class CreateUsersTable1732064194615 {
   }
 
   async down() {
-    await this.connection.query('DROP TABLE users')
+    await this.client.query('DROP TABLE users')
   }
 }

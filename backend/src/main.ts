@@ -1,6 +1,3 @@
-import 'dotenv/config'
-import 'reflect-metadata'
-
 import { Server } from './infra/http/server/server'
 import { CreateUserController } from '@infra/http/controllers/create-user.controller'
 import { CreateUserUseCase } from '@app/create-user/create-user.usecase'
@@ -11,10 +8,11 @@ import { EmailQueueService } from '@infra/queues/email-queue/email-queue.service
 import { CryptoHashService } from '@infra/text/hash/hash.service'
 import { NodeMailerService } from '@infra/emails/mailers/node-mailer.service'
 import { CreateUserValidation } from '@infra/validations/validations/create-user.validation'
+import { ConfigModule } from '@nestjs/config'
 
 async function bootstrap() {
   const server = new Server()
-  server.modules([])
+  server.modules([ConfigModule.forRoot()])
   server.injectables([
     {
       provide: 'Connection',

@@ -32,30 +32,28 @@ export class Server {
   private gracefulShutdown(server: ServerType): void {
     process.on('SIGINT', () => {
       server.close(() => {
-        console.log('Server closed')
         process.exit(0)
       })
     })
     process.on('SIGTERM', () => {
       server.close(() => {
-        console.log('Server closed')
         process.exit(0)
       })
     })
   }
 
   controllers(controllers: ClassLike<any>[]): this {
-    this.config.controllers = controllers
+    this.config.controllers.push(...controllers)
     return this
   }
 
   injectables(injectables: Array<ClassLike<any> | ValueProvider>): this {
-    this.config.providers = injectables
+    this.config.providers.push(...injectables)
     return this
   }
 
-  modules(modules: ClassLike<any>[]): this {
-    this.config.imports = modules
+  modules(modules: any[]): this {
+    this.config.imports.push(...modules)
     return this
   }
 }
