@@ -1,11 +1,11 @@
-import { PgConnection } from './connections/pg-connection'
+import { DrizzleConnection } from './connections/drizzle.connection'
 import { UserCodeRepository } from './repositories/user-code.repository'
 import { UserRepository } from './repositories/user.repository'
 
 export const connections = [
   {
     provide: 'Connection',
-    useValue: PgConnection.instance,
+    useValue: DrizzleConnection.instance,
   },
 ]
 

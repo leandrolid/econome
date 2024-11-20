@@ -3,6 +3,7 @@ export type ColumnOptions = {
   type: 'timestamp' | 'text' | 'integer' | 'bigint'
   default?: any
   generated?: boolean
+  nullable?: boolean
 }
 
 export const Column = (options: ColumnOptions): PropertyDecorator => {
