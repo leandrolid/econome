@@ -6,6 +6,7 @@ import { services } from '@infra/services'
 import { connections, repositories } from '@infra/database'
 import { controllers, middlewares, validations } from '@infra/http'
 import { usecases } from './application'
+import { bullModule } from '@infra/services/queues'
 
 async function bootstrap() {
   const server = new Server()
@@ -14,6 +15,7 @@ async function bootstrap() {
       ConfigModule.forRoot({
         isGlobal: true,
       }),
+      ...bullModule,
     ])
     .injectables([...connections, ...repositories, ...services, ...validations, ...usecases])
     .controllers([...controllers])
