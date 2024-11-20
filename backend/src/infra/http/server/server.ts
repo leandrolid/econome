@@ -1,5 +1,5 @@
 import { ClassLike } from '@infra/types/class-like.interface'
-import { Module, ValueProvider } from '@nestjs/common'
+import { MiddlewareConsumer, Module, NestModule, ValueProvider } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { Server as ServerType } from 'http'
@@ -10,6 +10,7 @@ export class Server {
     imports: any[]
     controllers: any[]
     providers: any[]
+    middlewares: any[]
   }
 
   constructor() {
@@ -17,12 +18,18 @@ export class Server {
       imports: [],
       controllers: [],
       providers: [],
+      middlewares: [],
     }
   }
 
   async start(port: number): Promise<void> {
-    @Module(this.config)
-    class App {}
+    const { middlewares, ...config } = this.config
+    @Module(config)
+    class App implements NestModule {
+      configure = (consumer: MiddlewareConsumer) => {
+        return consumer.apply(...middlewares).forRoutes('*')
+      }
+    }
     this.app = await NestFactory.create<NestExpressApplication>(App)
     this.app.enableCors()
     const server = await this.app.listen(port)
@@ -54,6 +61,11 @@ export class Server {
 
   modules(modules: any[]): this {
     this.config.imports.push(...modules)
+    return this
+  }
+
+  middlewares(middlewares: ClassLike<any>[]): this {
+    this.config.middlewares.push(...middlewares)
     return this
   }
 }
