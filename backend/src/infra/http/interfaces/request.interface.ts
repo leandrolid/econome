@@ -1,4 +1,4 @@
-export type Req = {
+export type IRequest = {
   body: any
   params: any
   query: any

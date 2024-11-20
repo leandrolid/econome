@@ -1,12 +1,21 @@
 import { HashService } from '@domain/services/hash.service'
-import { resolve } from '@infra/injection/resolve'
 import { faker } from '@faker-js/faker'
+import { CryptoHashService } from '@infra/text/hash/hash.service'
+import { TestingModule, Test } from '@nestjs/testing'
 
 describe('HashService', () => {
   let hashService: HashService
+  let app: TestingModule
 
   beforeEach(async () => {
-    hashService = resolve('HashService')
+    app = await Test.createTestingModule({
+      providers: [CryptoHashService],
+    }).compile()
+    hashService = await app.resolve(CryptoHashService)
+  })
+
+  afterEach(async () => {
+    await app.close()
   })
 
   it('should generate a random hash', () => {

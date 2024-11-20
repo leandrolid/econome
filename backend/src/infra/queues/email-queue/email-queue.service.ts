@@ -1,18 +1,14 @@
 import { QueueService } from '@domain/services/queue.service'
 import * as Queue from 'bull'
 import { EmailQueueInput } from './email-queue.input'
-import { Injectable } from '@infra/injection/injectable'
-import { ResolveParam } from '@infra/injection/resolve'
-import { MailerService } from '@domain/services/mailer.service'
+import { Injectable } from '@nestjs/common'
+import { NodeMailerService } from '@infra/emails/mailers/node-mailer.service'
 
 @Injectable()
 export class EmailQueueService implements QueueService<EmailQueueInput> {
   private readonly queue: Queue.Queue<EmailQueueInput>
 
-  constructor(
-    @ResolveParam('MailerService')
-    private readonly mailerService: MailerService,
-  ) {
+  constructor(private readonly mailerService: NodeMailerService) {
     this.queue = new Queue(EmailQueueService.name, {
       redis: {
         host: process.env.REDIS_HOST,

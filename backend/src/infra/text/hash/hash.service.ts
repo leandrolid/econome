@@ -1,5 +1,5 @@
 import { HashService } from '@domain/services/hash.service'
-import { Injectable } from '@infra/injection/injectable'
+import { Injectable } from '@nestjs/common'
 import { randomBytes } from 'crypto'
 
 @Injectable()

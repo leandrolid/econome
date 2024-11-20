@@ -1,25 +1,23 @@
 import { CreateUserUseCase } from '@app/create-user/create-user.usecase'
-import { Controller } from '@infra/http/interfaces/controller.interface'
+import { IController } from '@infra/http/interfaces/controller.interface'
 import { HttpMessages } from '@infra/http/interfaces/message.enum'
-import { Req } from '@infra/http/interfaces/req.interface'
-import { Res } from '@infra/http/interfaces/res.interface'
 import { HttpStatusCode } from '@infra/http/interfaces/status.enum'
-import { Injectable } from '@infra/injection/injectable'
 import { CreateUserValidation } from '@infra/validations/validations/create-user.validation'
+import { IRequest } from '../interfaces/request.interface'
+import { IResponse } from '../interfaces/response.interface'
+import { Controller, Post, Req, Res } from '@nestjs/common'
 
-@Injectable({
-  controller: {
-    method: 'post',
-    path: 'users',
-  },
+@Controller({
+  path: 'users',
 })
-export class CreateUserController implements Controller {
+export class CreateUserController implements IController {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createUserValidation: CreateUserValidation,
   ) {}
 
-  async execute(req: Req, res: Res) {
+  @Post()
+  async execute(@Req() req: IRequest, @Res() res: IResponse) {
     const input = this.createUserValidation.validate(req.body)
     await this.createUserUseCase.execute(input)
     return res.status(HttpStatusCode.CREATED).send(HttpMessages.CREATED())

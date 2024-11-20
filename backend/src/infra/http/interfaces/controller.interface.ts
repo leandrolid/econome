@@ -1,6 +1,6 @@
-import { Req } from './req.interface'
-import { Res } from './res.interface'
+import { IRequest } from './request.interface'
+import { IResponse } from './response.interface'
 
-export interface Controller {
-  execute(req: Req, res: Res): any
+export interface IController {
+  execute(req: IRequest, res: IResponse): any
 }

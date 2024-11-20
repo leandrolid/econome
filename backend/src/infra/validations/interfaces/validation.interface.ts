@@ -1,3 +1,3 @@
-export interface Validation<T> {
+export interface IValidation<T> {
   validate: (data: any) => T
 }

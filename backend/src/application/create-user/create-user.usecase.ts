@@ -1,4 +1,3 @@
-import { Injectable } from '@infra/injection/injectable'
 import { CreateUserInput } from './create-user.input'
 import { CreateUserOutput } from './create-user.output'
 import { UserRepository } from '@infra/database/repositories/user.repository'
@@ -6,6 +5,7 @@ import { BadRequestError } from '@domain/errors/bad-request.error'
 import { UserCodeRepository } from '@infra/database/repositories/user-code.repository'
 import { CryptoHashService } from '@infra/text/hash/hash.service'
 import { EmailQueueService } from '@infra/queues/email-queue/email-queue.service'
+import { Injectable } from '@nestjs/common'
 
 @Injectable()
 export class CreateUserUseCase {

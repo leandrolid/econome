@@ -1,29 +1,31 @@
-import { makeControllerToken } from '@infra/injection/injectable'
-import * as express from 'express'
+import { ClassLike } from '@infra/types/class-like.interface'
+import { Module, ValueProvider } from '@nestjs/common'
+import { NestFactory } from '@nestjs/core'
+import { NestExpressApplication } from '@nestjs/platform-express'
 import { Server as ServerType } from 'http'
-import { Controller } from '../interfaces/controller.interface'
-import { HttpMessages } from '../interfaces/message.enum'
-import { HttpStatusCode } from '../interfaces/status.enum'
-import { resolve } from '@infra/injection/resolve'
-import { HttpError } from '@domain/errors/http.error'
-import { NotFoundError } from '@domain/errors/not-found.error'
-import { ExpressAdapter } from '@bull-board/express'
-import { BullAdapter } from '@bull-board/api/bullAdapter'
-import { createBullBoard } from '@bull-board/api'
-import { QueueService } from '@domain/services/queue.service'
 
 export class Server {
-  private readonly app: express.Express
-
-  constructor(private readonly controllers: any[]) {
-    this.app = express()
-    this.app.use(express.json())
+  private app: NestExpressApplication
+  private readonly config: {
+    imports: any[]
+    controllers: any[]
+    providers: any[]
   }
 
-  start(port: number): void {
-    const server = this.app.listen(port, () => {
-      console.log('Server is running')
-    })
+  constructor() {
+    this.config = {
+      imports: [],
+      controllers: [],
+      providers: [],
+    }
+  }
+
+  async start(port: number): Promise<void> {
+    @Module(this.config)
+    class App {}
+    this.app = await NestFactory.create<NestExpressApplication>(App)
+    this.app.enableCors()
+    const server = await this.app.listen(port)
     this.gracefulShutdown(server)
   }
 
@@ -42,37 +44,18 @@ export class Server {
     })
   }
 
-  router(): void {
-    const serverAdapter = new ExpressAdapter()
-    serverAdapter.setBasePath('/queues')
-    createBullBoard({
-      queues: [new BullAdapter(resolve<QueueService<any>>('EmailQueueService').getQueue())],
-      serverAdapter: serverAdapter,
-    })
-    this.app.use('/queues', serverAdapter.getRouter())
-
-    this.app.use('*', (req, res) => {
-      try {
-        const controller = this.getController(req.method, req.baseUrl)
-        return controller.execute(req, res)
-      } catch (error) {
-        console.error(error)
-        if (error instanceof HttpError) {
-          return res.status(error.statusCode).send(error)
-        }
-        return res
-          .status(HttpStatusCode.INTERNAL_SERVER_ERROR)
-          .send(HttpMessages.INTERNAL_SERVER_ERROR())
-      }
-    })
+  controllers(controllers: ClassLike<any>[]): this {
+    this.config.controllers = controllers
+    return this
   }
 
-  private getController(method: string, path: string): Controller {
-    try {
-      return resolve<Controller>(makeControllerToken(method, path))
-    } catch (error) {
-      console.error(error)
-      throw new NotFoundError('Route not found')
-    }
+  injectables(injectables: Array<ClassLike<any> | ValueProvider>): this {
+    this.config.providers = injectables
+    return this
+  }
+
+  modules(modules: ClassLike<any>[]): this {
+    this.config.imports = modules
+    return this
   }
 }

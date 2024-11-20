@@ -2,6 +2,7 @@ import * as pgPromise from 'pg-promise'
 import { ColumnOptions } from '../decorators/column.decorator'
 import { Connection } from '../interfaces/connection.interface'
 import { BaseEntity } from '@domain/entities/_base.entity'
+import { runMigrations } from '../migrations/_migrations'
 
 type Target = typeof BaseEntity
 
@@ -28,6 +29,7 @@ export class PgConnection implements Connection {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
     })
+    runMigrations(this.database)
   }
 
   query(sql: string, values?: any[]): Promise<any> {
