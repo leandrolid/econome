@@ -2,7 +2,7 @@ import { QueueService } from '@domain/services/queue.service'
 import * as Queue from 'bull'
 import { EmailQueueInput } from './email-queue.input'
 import { Injectable } from '@nestjs/common'
-import { NodeMailerService } from '@infra/emails/mailers/node-mailer.service'
+import { NodeMailerService } from '@infra/services/emails/mailers/node-mailer.service'
 
 @Injectable()
 export class EmailQueueService implements QueueService<EmailQueueInput> {

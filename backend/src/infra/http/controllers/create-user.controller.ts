@@ -2,10 +2,10 @@ import { CreateUserUseCase } from '@app/create-user/create-user.usecase'
 import { IController } from '@infra/http/interfaces/controller.interface'
 import { HttpMessages } from '@infra/http/interfaces/message.enum'
 import { HttpStatusCode } from '@infra/http/interfaces/status.enum'
-import { CreateUserValidation } from '@infra/validations/validations/create-user.validation'
 import { IRequest } from '../interfaces/request.interface'
 import { IResponse } from '../interfaces/response.interface'
 import { Controller, Post, Req, Res } from '@nestjs/common'
+import { CreateUserValidation } from '../validations/create-user.validation'
 
 @Controller({
   path: 'users',

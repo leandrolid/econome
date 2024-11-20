@@ -14,19 +14,19 @@ export class NodeMailerService implements MailerService {
     SMTPTransport.SentMessageInfo,
     SMTPTransport.Options
   >
-  constructor(
-    options: SMTPTransport.Options = {
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT!),
-      authMethod: 'PLAIN',
-      requireTLS: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
+  constructor(options?: SMTPTransport.Options) {
+    this.transporter = nodemailer.createTransport(
+      options ?? {
+        host: process.env.EMAIL_HOST,
+        port: parseInt(process.env.EMAIL_PORT!),
+        authMethod: 'PLAIN',
+        requireTLS: true,
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASSWORD,
+        },
       },
-    },
-  ) {
-    this.transporter = nodemailer.createTransport(options)
+    )
   }
 
   async send(config: MailerConfig): Promise<MailerOutput> {
