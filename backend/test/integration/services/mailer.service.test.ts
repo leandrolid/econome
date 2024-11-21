@@ -1,11 +1,11 @@
-import { MailerConfig, MailerService } from '@domain/services/mailer.service'
-import { NodeMailerService } from '@infra/emails/mailers/node-mailer.service'
+import { IEmailConfig, IEmailService } from '@domain/services/email.service'
+import { NodeMailerService } from '@infra/services/emails/mailers/node-mailer.service'
 import { Test, TestingModule } from '@nestjs/testing'
 
 describe('EmailService', () => {
-  let emailService: MailerService
+  let emailService: IEmailService
   let app: TestingModule
-  const config: MailerConfig = {
+  const config: IEmailConfig = {
     to: 'any_to@email.com',
     subject: 'any_subject',
     template: 'confirmation-code',
@@ -15,7 +15,7 @@ describe('EmailService', () => {
     app = await Test.createTestingModule({
       providers: [
         {
-          provide: NodeMailerService,
+          provide: IEmailService,
           useValue: new NodeMailerService({
             host: process.env.TEST_EMAIL_HOST,
             port: parseInt(process.env.TEST_EMAIL_PORT!),
@@ -28,7 +28,7 @@ describe('EmailService', () => {
         },
       ],
     }).compile()
-    emailService = await app.resolve(NodeMailerService)
+    emailService = await app.resolve(IEmailService)
   })
 
   afterEach(async () => {

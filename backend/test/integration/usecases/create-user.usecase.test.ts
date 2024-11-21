@@ -1,12 +1,12 @@
 import { CreateUserUseCase } from '@app/create-user/create-user.usecase'
+import { IEmailService } from '@domain/services/email.service'
 import { faker } from '@faker-js/faker'
-import { PgConnection } from '@infra/database/connections/pg-connection'
+import { repositories } from '@infra/database'
+import { DrizzleConnection } from '@infra/database/connections/drizzle.connection'
 import { Connection } from '@infra/database/interfaces/connection.interface'
-import { UserCodeRepository } from '@infra/database/repositories/user-code.repository'
-import { UserRepository } from '@infra/database/repositories/user.repository'
-import { NodeMailerService } from '@infra/emails/mailers/node-mailer.service'
-import { EmailQueueService } from '@infra/queues/email-queue/email-queue.service'
-import { CryptoHashService } from '@infra/text/hash/hash.service'
+import { services } from '@infra/services'
+import { NodeMailerService } from '@infra/services/emails/mailers/node-mailer.service'
+import { bullModule } from '@infra/services/queues'
 import { Test, TestingModule } from '@nestjs/testing'
 
 describe('CreateUserUsecase', () => {
@@ -16,14 +16,13 @@ describe('CreateUserUsecase', () => {
 
   beforeEach(async () => {
     app = await Test.createTestingModule({
+      imports: [...bullModule],
       providers: [
         CreateUserUseCase,
-        UserRepository,
-        UserCodeRepository,
-        EmailQueueService,
-        CryptoHashService,
+        ...repositories,
+        ...services,
         {
-          provide: NodeMailerService,
+          provide: IEmailService,
           useValue: new NodeMailerService({
             host: process.env.TEST_EMAIL_HOST,
             port: parseInt(process.env.TEST_EMAIL_PORT!),
@@ -36,7 +35,7 @@ describe('CreateUserUsecase', () => {
         },
         {
           provide: 'Connection',
-          useValue: PgConnection.instance,
+          useValue: DrizzleConnection.instance,
         },
       ],
     }).compile()
