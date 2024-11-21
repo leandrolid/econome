@@ -1,15 +1,15 @@
 import {
-  MailerConfig,
-  MailerOutput,
-  MailerService,
-  MailerTemplate,
-} from '@domain/services/mailer.service'
+  IEmailConfig,
+  IEmailOutput,
+  IEmailService,
+  IEmailTemplate,
+} from '@domain/services/email.service'
 import * as nodemailer from 'nodemailer'
 import SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { resolve } from 'path'
 import * as pug from 'pug'
 
-export class NodeMailerService implements MailerService {
+export class NodeMailerService implements IEmailService {
   private readonly transporter: nodemailer.Transporter<
     SMTPTransport.SentMessageInfo,
     SMTPTransport.Options
@@ -29,7 +29,7 @@ export class NodeMailerService implements MailerService {
     )
   }
 
-  async send(config: MailerConfig): Promise<MailerOutput> {
+  async send(config: IEmailConfig): Promise<IEmailOutput> {
     const res = await this.transporter.sendMail({
       from: process.env.EMAIL_FROM,
       to: config.to,
@@ -44,7 +44,7 @@ export class NodeMailerService implements MailerService {
     }
   }
 
-  private getTemplate(config: { template: MailerTemplate; replacements?: Record<string, string> }) {
+  private getTemplate(config: { template: IEmailTemplate; replacements?: Record<string, string> }) {
     const templatePath = resolve(__dirname, '..', 'templates', `${config.template}.pug`)
     return pug.compileFile(templatePath, { pretty: true })(config.replacements)
   }

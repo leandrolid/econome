@@ -1,3 +1,3 @@
-import { MailerConfig } from '@domain/services/mailer.service'
+import { IEmailConfig } from '@domain/services/email.service'
 
-export type EmailQueueInput = MailerConfig
+export type EmailQueueInput = IEmailConfig

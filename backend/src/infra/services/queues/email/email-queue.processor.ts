@@ -1,16 +1,15 @@
-import { NodeMailerService } from '@infra/services/emails/mailers/node-mailer.service'
 import { EmailQueueInput } from './email-queue.input'
-import { MailerOutput } from '@domain/services/mailer.service'
+import { IEmailOutput, IEmailService } from '@domain/services/email.service'
 import { Job } from 'bullmq'
 import { Processor, WorkerHost } from '@nestjs/bullmq'
 
 @Processor('emails')
 export class EmailQueueProcessor extends WorkerHost {
-  constructor(private readonly mailerService: NodeMailerService) {
+  constructor(private readonly mailerService: IEmailService) {
     super()
   }
 
-  async process(job: Job<EmailQueueInput>): Promise<MailerOutput> {
+  async process(job: Job<EmailQueueInput>): Promise<IEmailOutput> {
     const { to, subject, template, replacements } = job.data
     return this.mailerService.send({ to, subject, template, replacements })
   }

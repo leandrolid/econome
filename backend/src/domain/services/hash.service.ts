@@ -1,3 +1,3 @@
-export interface HashService {
-  random(size: number): string
+export abstract class IHashService {
+  abstract random(size: number): string
 }

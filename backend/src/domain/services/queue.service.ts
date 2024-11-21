@@ -1,3 +1,3 @@
-export interface QueueService<T> {
-  enqueue(data: T): Promise<void>
+export abstract class IQueueService<T> {
+  abstract enqueue(data: T): Promise<void>
 }

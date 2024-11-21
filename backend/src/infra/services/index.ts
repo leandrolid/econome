@@ -2,10 +2,22 @@ import { EmailQueueService } from '@infra/services/queues/email/email-queue.serv
 import { CryptoHashService } from '@infra/services/hash/hash.service'
 import { NodeMailerService } from '@infra/services/emails/mailers/node-mailer.service'
 import { EmailQueueProcessor } from './queues/email/email-queue.processor'
+import { IQueueService } from '@domain/services/queue.service'
+import { IEmailConfig, IEmailService } from '@domain/services/email.service'
+import { IHashService } from '@domain/services/hash.service'
 
 export const services = [
-  NodeMailerService,
-  EmailQueueService,
+  {
+    provide: IEmailService,
+    useClass: NodeMailerService,
+  },
+  {
+    provide: IQueueService<IEmailConfig>,
+    useClass: EmailQueueService,
+  },
   EmailQueueProcessor,
-  CryptoHashService,
+  {
+    provide: IHashService,
+    useClass: CryptoHashService,
+  },
 ]

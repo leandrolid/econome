@@ -1,6 +1,8 @@
+import { IUserCodeRepository } from '@domain/repositories/user-code.reporitory'
 import { DrizzleConnection } from './connections/drizzle.connection'
 import { UserCodeRepository } from './repositories/user-code.repository'
 import { UserRepository } from './repositories/user.repository'
+import { IUserRepository } from '@domain/repositories/user.repository'
 
 export const connections = [
   {
@@ -9,4 +11,13 @@ export const connections = [
   },
 ]
 
-export const repositories = [UserRepository, UserCodeRepository]
+export const repositories = [
+  {
+    provide: IUserRepository,
+    useClass: UserRepository,
+  },
+  {
+    provide: IUserCodeRepository,
+    useClass: UserCodeRepository,
+  },
+]

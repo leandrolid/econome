@@ -2,7 +2,7 @@ import { HttpError } from '@domain/errors/http.error'
 import { DrizzleConnection } from '../connections/drizzle.connection'
 import { ConflictError } from '@domain/errors/conflict.error'
 
-export const Transaction = (message: string): MethodDecorator => {
+export const Transaction = ({ errorMessage }: { errorMessage: string }): MethodDecorator => {
   return (_target: any, _propertyKey: string | symbol, descriptor: PropertyDescriptor) => {
     const originalMethod = descriptor.value
     descriptor.value = async function (...args: any[]) {
@@ -16,7 +16,7 @@ export const Transaction = (message: string): MethodDecorator => {
         await connection.query('ROLLBACK')
         if (error instanceof HttpError) throw error
         console.error(error)
-        throw new ConflictError(message)
+        throw new ConflictError(errorMessage)
       }
     }
   }

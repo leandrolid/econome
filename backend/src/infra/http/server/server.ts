@@ -1,5 +1,11 @@
 import { ClassLike } from '@infra/types/class-like.interface'
-import { MiddlewareConsumer, Module, NestModule, ValueProvider } from '@nestjs/common'
+import {
+  ClassProvider,
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValueProvider,
+} from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { Server as ServerType } from 'http'
@@ -54,7 +60,7 @@ export class Server {
     return this
   }
 
-  injectables(injectables: Array<ClassLike<any> | ValueProvider>): this {
+  injectables(injectables: Array<ClassLike<any> | ValueProvider | ClassProvider>): this {
     this.config.providers.push(...injectables)
     return this
   }

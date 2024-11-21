@@ -1,23 +1,24 @@
 import { CreateUserInput } from './create-user.input'
 import { CreateUserOutput } from './create-user.output'
-import { UserRepository } from '@infra/database/repositories/user.repository'
 import { BadRequestError } from '@domain/errors/bad-request.error'
-import { UserCodeRepository } from '@infra/database/repositories/user-code.repository'
-import { CryptoHashService } from '@infra/services/hash/hash.service'
-import { EmailQueueService } from '@infra/services/queues/email/email-queue.service'
 import { Injectable } from '@nestjs/common'
 import { Transaction } from '@infra/database/decorators/transaction.decorator'
+import { IQueueService } from '@domain/services/queue.service'
+import { IEmailConfig } from '@domain/services/email.service'
+import { IHashService } from '@domain/services/hash.service'
+import { IUserRepository } from '@domain/repositories/user.repository'
+import { IUserCodeRepository } from '@domain/repositories/user-code.reporitory'
 
 @Injectable()
 export class CreateUserUseCase {
   constructor(
-    private readonly userRepository: UserRepository,
-    private readonly userCodeRepository: UserCodeRepository,
-    private readonly emailQueueService: EmailQueueService,
-    private readonly hashService: CryptoHashService,
+    private readonly userRepository: IUserRepository,
+    private readonly userCodeRepository: IUserCodeRepository,
+    private readonly emailQueueService: IQueueService<IEmailConfig>,
+    private readonly hashService: IHashService,
   ) {}
 
-  @Transaction('Error creating user')
+  @Transaction({ errorMessage: 'Error creating user' })
   async execute(data: CreateUserInput): Promise<CreateUserOutput> {
     const isRegistered = await this.userRepository.exists({ email: data.email })
     if (isRegistered) throw new BadRequestError('Email already registered')
