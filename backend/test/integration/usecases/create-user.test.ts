@@ -70,7 +70,7 @@ describe('CreateUserUsecase', () => {
     await createUserUsecase.execute({ email: 'any@email.com' })
 
     await expect(() => createUserUsecase.execute({ email: 'any@email.com' })).rejects.toThrow(
-      'Email already registered',
+      'E-mail já cadastrado',
     )
   })
 
