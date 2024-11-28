@@ -1,6 +1,6 @@
 import { IHashService } from '@domain/services/hash.service'
 import { Injectable } from '@nestjs/common'
-import { randomBytes } from 'crypto'
+import { randomBytes } from 'node:crypto'
 
 @Injectable()
 export class CryptoHashService implements IHashService {

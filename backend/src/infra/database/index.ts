@@ -3,6 +3,7 @@ import { DrizzleConnection } from './connections/drizzle.connection'
 import { UserCodeRepository } from './repositories/user-code.repository'
 import { UserRepository } from './repositories/user.repository'
 import { IUserRepository } from '@domain/repositories/user.repository'
+import { Repository } from '@infra/database/repositories/_repository'
 
 export const connections = [
   {
@@ -12,6 +13,7 @@ export const connections = [
 ]
 
 export const repositories = [
+  Repository,
   {
     provide: IUserRepository,
     useClass: UserRepository,

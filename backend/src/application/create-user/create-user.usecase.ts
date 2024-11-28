@@ -20,7 +20,7 @@ export class CreateUserUseCase {
 
   @Transaction({ errorMessage: 'Error creating user' })
   async execute(data: CreateUserInput): Promise<CreateUserOutput> {
-    const isRegistered = await this.userRepository.exists({ email: data.email })
+    const isRegistered = await this.userRepository.isEmailRegistered(data.email)
     if (isRegistered) throw new BadRequestError('Email already registered')
     const user = await this.userRepository.createOne({ email: data.email })
     const userCode = await this.userCodeRepository.createOne({
