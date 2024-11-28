@@ -7,6 +7,7 @@ import { connections, repositories } from '@infra/database'
 import { controllers, middlewares, validations } from '@infra/http'
 import { usecases } from './application'
 import { bullModule } from '@infra/services/queues'
+import { HttpErrorFilter } from '@infra/http/middlewares/http-error.middleware'
 
 async function bootstrap() {
   const server = new Server()
@@ -20,6 +21,7 @@ async function bootstrap() {
     .injectables([...connections, ...repositories, ...services, ...validations, ...usecases])
     .controllers([...controllers])
     .middlewares([...middlewares])
+    .errorHandlers([new HttpErrorFilter()])
   await server.start(Number(process.env.PORT || 3001))
 }
 bootstrap()

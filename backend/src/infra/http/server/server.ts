@@ -17,6 +17,7 @@ export class Server {
     controllers: any[]
     providers: any[]
     middlewares: any[]
+    errorHandlers: any[]
   }
 
   constructor() {
@@ -25,11 +26,12 @@ export class Server {
       controllers: [],
       providers: [],
       middlewares: [],
+      errorHandlers: [],
     }
   }
 
   async start(port: number): Promise<void> {
-    const { middlewares, ...config } = this.config
+    const { middlewares, errorHandlers, ...config } = this.config
     @Module(config)
     class App implements NestModule {
       configure = (consumer: MiddlewareConsumer) => {
@@ -38,6 +40,7 @@ export class Server {
     }
     this.app = await NestFactory.create<NestExpressApplication>(App)
     this.app.enableCors()
+    this.app.useGlobalFilters(...errorHandlers)
     const server = await this.app.listen(port)
     this.gracefulShutdown(server)
   }
@@ -72,6 +75,11 @@ export class Server {
 
   middlewares(middlewares: ClassLike<any>[]): this {
     this.config.middlewares.push(...middlewares)
+    return this
+  }
+
+  errorHandlers(errorHandlers: Array<{ catch: (error: any, host: any) => any }>): this {
+    this.config.errorHandlers.push(...errorHandlers)
     return this
   }
 }
