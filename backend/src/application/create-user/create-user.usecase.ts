@@ -18,10 +18,10 @@ export class CreateUserUseCase {
     private readonly hashService: IHashService,
   ) {}
 
-  @Transaction({ errorMessage: 'Error creating user' })
+  @Transaction({ errorMessage: 'Erro ao criar usuário' })
   async execute(data: CreateUserInput): Promise<CreateUserOutput> {
     const isRegistered = await this.userRepository.isEmailRegistered(data.email)
-    if (isRegistered) throw new BadRequestError('Email already registered')
+    if (isRegistered) throw new BadRequestError('E-mail já cadastrado')
     const user = await this.userRepository.createOne({ email: data.email })
     const userCode = await this.userCodeRepository.createOne({
       userId: user.id,
@@ -29,7 +29,7 @@ export class CreateUserUseCase {
     })
     await this.emailQueueService.enqueue({
       to: user.email,
-      subject: 'E-mail confirmation',
+      subject: 'Confirmação de e-mail',
       template: 'confirmation-code',
       replacements: { code: userCode.code },
     })
