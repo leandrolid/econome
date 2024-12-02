@@ -1,4 +1,4 @@
-import { IUserCodeRepository } from '@domain/repositories/user-code.reporitory'
+import { IUserCodeRepository } from '@domain/repositories/user-code.repository'
 import { DrizzleConnection } from './connections/drizzle.connection'
 import { UserCodeRepository } from './repositories/user-code.repository'
 import { UserRepository } from './repositories/user.repository'

@@ -16,4 +16,8 @@ export class Repository<Entity extends BaseEntity> implements IRepository<Entity
   async exists(Target: Target, data: Partial<Entity>): Promise<boolean> {
     return this.connection.exists(Target, data)
   }
+
+  async getId(Target: Target, data: Partial<Entity>): Promise<number> {
+    return this.connection.getId(Target, data)
+  }
 }

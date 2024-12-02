@@ -14,4 +14,8 @@ export class UserRepository implements IUserRepository {
   async isEmailRegistered(email: string): Promise<boolean> {
     return this.repository.exists(User, { email })
   }
+
+  async getIdByEmail(email: string): Promise<number> {
+    return this.repository.getId(User, { email })
+  }
 }

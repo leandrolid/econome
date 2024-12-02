@@ -5,6 +5,7 @@ import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { and, eq } from 'drizzle-orm'
 import { Logger } from '@nestjs/common'
 import * as schemas from '../schemas'
+import { PgTableWithColumns } from 'drizzle-orm/pg-core'
 
 export class DrizzleConnection implements Connection {
   private readonly connection: NodePgDatabase<Record<string, any>> & { $client: Pool }
@@ -33,9 +34,10 @@ export class DrizzleConnection implements Connection {
   }
 
   async query(sql: string, values?: any[]): Promise<any> {
+    // TODO: check this
     const query = !Array.isArray(values)
       ? sql
-      : values.reduce((acc, value, index) => acc.replace(`$${index + 1}`, value), sql)
+      : values.reduce((acc, value, index) => acc.replace(`$${index + 1}`, `'${value}'`), sql)
     return this.connection.execute(query)
   }
 
@@ -44,7 +46,7 @@ export class DrizzleConnection implements Connection {
   }
 
   async insertInto<T>(target: Target, values: Partial<T> | Partial<T>[]): Promise<T[]> {
-    const schema = await this.getTableSchema(target)
+    const schema = this.getTableSchema(target)
     const result = await this.connection
       .insert(schema)
       .values(values as Record<string, unknown>)
@@ -53,7 +55,7 @@ export class DrizzleConnection implements Connection {
   }
 
   async exists<T>(target: Target, where: Partial<T>): Promise<boolean> {
-    const schema = await this.getTableSchema(target)
+    const schema = this.getTableSchema(target)
     const result = await this.connection
       .select()
       .from(schema)
@@ -68,7 +70,23 @@ export class DrizzleConnection implements Connection {
     return result.length > 0
   }
 
-  private async getTableSchema(Target: Target) {
+  async getId<T>(target: Target, where: Partial<T>): Promise<number> {
+    const schema = this.getTableSchema(target)
+    const result = await this.connection
+      .select({ id: schema.id })
+      .from(schema)
+      .where(
+        and(
+          ...Object.entries(where).map(([key, value]) => {
+            return eq(schema[key], value)
+          }),
+        ),
+      )
+      .limit(1)
+    return result[0].id
+  }
+
+  private getTableSchema(Target: Target): PgTableWithColumns<any> {
     const schemaName = `${camel(Target.name)}Schema`
     return schemas[schemaName]
   }

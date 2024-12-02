@@ -9,4 +9,8 @@ export class CryptoHashService implements IHashService {
       .toString('hex')
       .toUpperCase()
   }
+
+  async hash(value: string): Promise<string> {
+    return value
+  }
 }

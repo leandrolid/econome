@@ -7,7 +7,7 @@ import { IQueueService } from '@domain/services/queue.service'
 import { IEmailConfig } from '@domain/services/email.service'
 import { IHashService } from '@domain/services/hash.service'
 import { IUserRepository } from '@domain/repositories/user.repository'
-import { IUserCodeRepository } from '@domain/repositories/user-code.reporitory'
+import { IUserCodeRepository } from '@domain/repositories/user-code.repository'
 
 @Injectable()
 export class CreateUserUseCase {
