@@ -3,6 +3,9 @@ import { pathsToModuleNameMapper } from 'ts-jest'
 import { compilerOptions } from './tsconfig.json'
 
 const config: Config = {
+  restoreMocks: true,
+  resetMocks: true,
+  clearMocks: true,
   moduleFileExtensions: ['js', 'json', 'ts'],
   rootDir: '.',
   testRegex: '.*\\.test\\.ts$',
