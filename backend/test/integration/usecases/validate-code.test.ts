@@ -1,4 +1,5 @@
 import { ValidateCodeUseCase } from '@app/validate-code/validate-code.usecase'
+import { ITokenService } from '@domain/services/token.service'
 import { faker } from '@faker-js/faker/.'
 import { repositories } from '@infra/database'
 import { DrizzleConnection } from '@infra/database/connections/drizzle.connection'
@@ -11,6 +12,7 @@ describe('ValidateCodeUseCase', () => {
   let validateCodeUseCase: ValidateCodeUseCase
   let app: TestingModule
   let connection: Connection
+  let tokenService: ITokenService
 
   beforeEach(async () => {
     app = await Test.createTestingModule({
@@ -27,6 +29,7 @@ describe('ValidateCodeUseCase', () => {
     }).compile()
     validateCodeUseCase = await app.resolve(ValidateCodeUseCase)
     connection = await app.resolve('Connection')
+    tokenService = await app.resolve(ITokenService)
   })
 
   afterEach(async () => {
@@ -49,5 +52,22 @@ describe('ValidateCodeUseCase', () => {
     )
     const output = await validateCodeUseCase.execute({ code: userCode.code, email: user.email })
     expect(output.token).toStrictEqual(expect.any(String))
+  })
+
+  it('should create a token with correct data', async () => {
+    const {
+      rows: [user],
+    } = await connection.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [
+      faker.internet.email(),
+    ])
+    const {
+      rows: [userCode],
+    } = await connection.query(
+      'INSERT INTO user_codes (user_id, code) VALUES ($1, $2) RETURNING *',
+      [user.id, '123456'],
+    )
+    const output = await validateCodeUseCase.execute({ code: userCode.code, email: user.email })
+    const tokenData = tokenService.decode({ token: output.token })
+    expect(tokenData.userId).toBe(user.id)
   })
 })

@@ -5,6 +5,8 @@ import { EmailQueueProcessor } from './queues/email/email-queue.processor'
 import { IQueueService } from '@domain/services/queue.service'
 import { IEmailConfig, IEmailService } from '@domain/services/email.service'
 import { IHashService } from '@domain/services/hash.service'
+import { ITokenService } from '@domain/services/token.service'
+import { JwtTokenService } from '@infra/services/token/token.service'
 
 export const services = [
   {
@@ -19,5 +21,9 @@ export const services = [
   {
     provide: IHashService,
     useClass: CryptoHashService,
+  },
+  {
+    provide: ITokenService,
+    useClass: JwtTokenService,
   },
 ]

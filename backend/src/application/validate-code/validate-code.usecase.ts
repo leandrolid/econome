@@ -3,6 +3,7 @@ import { ValidateCodeOutput } from '@app/validate-code/validate-code.output'
 import { BadRequestError } from '@domain/errors/bad-request.error'
 import { IUserCodeRepository } from '@domain/repositories/user-code.repository'
 import { IUserRepository } from '@domain/repositories/user.repository'
+import { ITokenService } from '@domain/services/token.service'
 import { Injectable } from '@nestjs/common'
 
 @Injectable()
@@ -10,7 +11,9 @@ export class ValidateCodeUseCase {
   constructor(
     private readonly userRepository: IUserRepository,
     private readonly userCodeRepository: IUserCodeRepository,
+    private readonly tokenService: ITokenService,
   ) {}
+
   async execute({ email, code }: ValidateCodeInput): Promise<ValidateCodeOutput> {
     const userId = await this.userRepository.getIdByEmail(email)
     const isCodeValid = await this.userCodeRepository.isCodeValid({ userId, code })
@@ -18,7 +21,7 @@ export class ValidateCodeUseCase {
       throw new BadRequestError('Código inválido')
     }
     return {
-      token: 'any',
+      token: this.tokenService.create({ payload: { userId } }),
     }
   }
 }
