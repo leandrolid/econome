@@ -21,7 +21,11 @@ export class DrizzleConnection implements Connection {
 
   private constructor() {
     this.connection = drizzle({
-      connection: `${process.env.DB_URL}`,
+      client: new Pool({
+        connectionString: process.env.DB_URL,
+        max: 20,
+        allowExitOnIdle: true,
+      }),
       casing: 'snake_case',
       logger: {
         logQuery: (query, params: any[]) => {
@@ -30,15 +34,11 @@ export class DrizzleConnection implements Connection {
           )
         },
       },
-    }) as any
+    })
   }
 
   async query(sql: string, values?: any[]): Promise<any> {
-    // TODO: check this
-    const query = !Array.isArray(values)
-      ? sql
-      : values.reduce((acc, value, index) => acc.replace(`$${index + 1}`, `'${value}'`), sql)
-    return this.connection.execute(query)
+    return this.connection.$client.query(sql, values)
   }
 
   async destroy(): Promise<void> {
